@@ -5,6 +5,18 @@ if [ "$1" == "-v" ]; then
 	_LCL_VERBOSE_=true
 fi
 
+source inc/check_root.sh
+
+HARD_BACKUPS_PATH=/home/www-data-backups
+mkdir -p $HARD_BACKUPS_PATH
+chown -R www-data $HARD_BACKUPS_PATH
+
+_QUIET_MODE_=true
+source list_glpi_versions
+
+ECHO $ALL_VERSION
+ECHO $LIVE_VERSION
+
 # get current version value
 # from apache current version greping "DocumentRoot /var/www/html/" line and converting number
 

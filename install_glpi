@@ -20,15 +20,18 @@ source inc/check_root.sh
 read -p "Enter SQL username: " SQL_USERNAME
 read -p "Enter SQL password: " SQL_PASSWORD
 read -p "Enter Server name: " SERVER_NAME
+if [ "$SERVER_NAME" == "" ]; then
+	SERVER_NAME=localhost
+fi
 read -p "Enter Server local ip: " SERVER_IP
 if [ "$(ipcalc $SERVER_IP)" != "" ]; then
 	echo "WARNING: entered ip is not valid default is set to 127.0.0.1"
 	SERVER_IP="127.0.0.1"
 fi
-# /etc/apache2/sites-available/glpi_$GLPI_VERSION.conf
 
 # set timezone
-timedatectl set-timezone Europe/Paris
+read -p "Enter timezone: " LOCAL_TIMEZONE
+timedatectl set-timezone $LOCAL_TIMEZONE
 mariadb-tzinfo-to-sql timezone_dir
 
 # additional default apache config
@@ -37,7 +40,9 @@ a2enmod proxy_fcgi setenvif rewrite
 a2enconf php*-fpm
 a2dissite 000-default.conf
 
-source inc/fetch_remote_glpi_tag.sh
+# source inc/fetch_remote_glpi_tag.sh
+GLPI_VERSION=10.0.21
+GLPI_TAG=10_0_21
 
 source inc/setup_glpi_site.sh
 
