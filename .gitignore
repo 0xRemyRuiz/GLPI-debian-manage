@@ -1,0 +1,8 @@
+# custom
+*.zip
+glpi_*
+backups/
+
+# linux
+*~
+

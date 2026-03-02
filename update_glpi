@@ -1,0 +1,26 @@
+#!/bin/bash
+
+_LCL_VERBOSE_=false
+if [ "$1" == "-v" ]; then
+	_LCL_VERBOSE_=true
+fi
+
+# get current version value
+# from apache current version greping "DocumentRoot /var/www/html/" line and converting number
+
+# grep VAR from ServerName glp11-neptunet
+# grep VAR from ServerAlias 192.168.0.99
+
+# uninstall old version
+# a2dissite glpi_$GLPI_OLD_VERSION.conf
+# remove OLD version
+# echo "DROP DATABASE $GLPI_OLD_VERSION" | sudo mariadb
+# rm -rf PATH_TO/$GLPI_OLD_VERSION
+
+# a2ensite glpi_$GLPI_VERSION.conf
+
+# install new version
+
+# import database
+
+# switch default route to new version

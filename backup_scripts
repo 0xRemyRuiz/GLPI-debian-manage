@@ -1,0 +1,30 @@
+#!/bin/bash
+
+_LCL_VERBOSE_=false
+if [ "$1" == "-v" ]; then
+	_LCL_VERBOSE_=true
+fi
+
+ZIP_FILE="install_glpi.zip"
+BCKP_FOLDER="backups/glpi_$(date +'%d_%m-%H_%M_%S_%3N')"
+
+FILES="\
+	README.rst \
+	.gitignore \
+	install_glpi \
+	backup_scripts \
+	update_glpi \
+	list_glpi_versions \
+	"
+FOLDERS="\
+	inc/ \
+	rss/ \
+	"
+
+rm $ZIP_FILE
+zip $ZIP_FILE $FILES -r $FOLDERS
+
+echo "Making a folder backup as well"
+echo "Bakcup folder is: $(pwd)/$BCKP_FOLDER"
+mkdir -p $BCKP_FOLDER
+cp $FILES $BCKP_FOLDER
