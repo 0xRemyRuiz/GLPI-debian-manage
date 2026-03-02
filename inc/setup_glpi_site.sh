@@ -20,7 +20,8 @@ fi
 wget $GLPI_ARCHIVE_URL -O /tmp/$GLPI_ARCHIVE_FILENAME &&\
 tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C /var/www/html &&\
 mv /var/www/html/glpi $GLPI_FOLDER_PATH &&\
-chown -R www-data $GLPI_FOLDER_PATH &&\
+chown -R www-data:www-data $GLPI_FOLDER_PATH &&\
+chmod 660 -R $GLPI_FOLDER_PATH &&\
 echo "INFO: File extraction is successful"
 
 # initialize database
@@ -54,16 +55,16 @@ cat rss/apache_conf_template.txt \
 | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
 | sed "s/RewriteBase _URL_\//RewriteBase _URL_/g" \
 | sed "s/_URL_/\//g" \
-> /etc/apache2/sites-available/glpi.conf
+> /etc/apache2/sites-available/001-glpi.conf
 
 # adding return character
-echo "" >> /etc/apache2/sites-available/glpi.conf
+echo "" >> /etc/apache2/sites-available/001-glpi.conf
 # adding live version tag
-echo "# live version: $GLPI_VERSION" >> /etc/apache2/sites-available/glpi.conf
+echo "# live version: $GLPI_VERSION" >> /etc/apache2/sites-available/001-glpi.conf
+
+cd $GLPI_FOLDER_PATH
+sudo -u www-data yes | php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+
 
 # Enable live version config
-a2ensite glpi.conf
-
-# Creating database
-cd $GLPI_FOLDER_PATH
-yes | php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+a2ensite 001-glpi.conf

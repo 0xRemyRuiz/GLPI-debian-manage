@@ -10,11 +10,10 @@ source inc/check_root.sh
 # script to list installed version
 ALL_VERSION=$(ls -l /etc/apache2/sites-enabled/glpi-* | grep -Eo 'glpi-[0-9\.]*\.conf$' | sed 's/.conf//g')
 LIVE_VERSION=$(cat /etc/apache2/sites-enabled/glpi.conf | grep '# live version' | grep -Eo '([0-9]+\.?)+')
+LIVE_TAG=$(echo "$LIVE_VERSION" | sed 's/\./_/g')
 
-if [ "$_QUIET_MODE_" == true ]; then
-	exit 0
+if [ "$_LCL_VERBOSE_" == true ]; then
+	echo "Live version is: $LIVE_VERSION"
+	echo "GLPI current deployed versions are:"
+	echo $ALL_VERSION | sed 's/ /\n/g'
 fi
-
-echo "Live version is: $LIVE_VERSION"
-echo "GLPI current deployed versions are:"
-echo $ALL_VERSION | sed 's/ /\n/g'

@@ -7,27 +7,18 @@ fi
 
 source inc/check_root.sh
 
-# if [ -d /var/www/html/glpi_* ]; then
-# 	echo "ERROR: GLPI already installed"; exit 1
-# fi
+if [ -d /var/www/html/glpi_* ]; then
+	echo "ERROR: GLPI already installed"; exit 1
+fi
 
-# apt update -y &&\
-# apt full-upgrade -y &&\
-# apt install -y apt-transport-https ipcalc apache2 mariadb-server php php-{fpm,mysql,mbstring,curl,gd,xml,intl,ldap,apcu,xmlrpc,zip,bz2,bcmath}
+apt update -y &&\
+apt full-upgrade -y &&\
+apt install -y apt-transport-https ipcalc apache2 mariadb-server zip unzip \
+	php php-{fpm,mysql,mbstring,curl,gd,xml,intl,ldap,apcu,xmlrpc,zip,bz2,bcmath}
 
 # ask for server name and local ip
-# TODO: add a loop check here
-read -p "Enter SQL username: " SQL_USERNAME
-read -p "Enter SQL password: " SQL_PASSWORD
-read -p "Enter Server name: " SERVER_NAME
-if [ "$SERVER_NAME" == "" ]; then
-	SERVER_NAME=localhost
-fi
-read -p "Enter Server local ip: " SERVER_IP
-if [ "$(ipcalc $SERVER_IP)" != "" ]; then
-	echo "WARNING: entered ip is not valid default is set to 127.0.0.1"
-	SERVER_IP="127.0.0.1"
-fi
+source inc/ask_sql_infos.sh
+source inc/ask_server_infos.sh
 
 # set timezone
 read -p "Enter timezone: " LOCAL_TIMEZONE
@@ -40,11 +31,13 @@ a2enmod proxy_fcgi setenvif rewrite
 a2enconf php*-fpm
 a2dissite 000-default.conf
 
-# source inc/fetch_remote_glpi_tag.sh
-GLPI_VERSION=10.0.21
-GLPI_TAG=10_0_21
+source inc/fetch_remote_glpi_tag.sh
 
 source inc/setup_glpi_site.sh
+
+# Creating database
+# cd $GLPI_FOLDER_PATH
+# sudo -u www-data yes | php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
 systemctl start apache2
 

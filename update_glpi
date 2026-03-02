@@ -5,34 +5,77 @@ if [ "$1" == "-v" ]; then
 	_LCL_VERBOSE_=true
 fi
 
-source inc/check_root.sh
+# root check is done in list_glpi_versions
+source list_glpi_versions
+
+# fetch the last remote version tag to compare
+source inc/fetch_remote_glpi_tag.sh
+
+if [ "$GLPI_VERSION" ==  "$LIVE_VERSION" ]; then
+	echo "Current live version si already up to date, exiting..."
+	exit 0
+fi
 
 HARD_BACKUPS_PATH=/home/www-data-backups
+HARD_BACKUPS_FILE=$HARD_BACKUPS_PATH/glpi_$(date +'%d_%m-%H_%M')
 mkdir -p $HARD_BACKUPS_PATH
 chown -R www-data $HARD_BACKUPS_PATH
 
-_QUIET_MODE_=true
-source list_glpi_versions
+OLD_VERSION=$(echo "$ALL_VERSION" | grep -v "$LIVE_VERSION" | sed 's/glpi-//')
+if [ "$OLD_VERSION" == "" ]; then
+	OLD_VERSION="N/A"
+fi
+if [ "$_LCL_VERBOSE_" == true ]; then
+	echo "Old verion found: $OLD_VERSION"
+fi
 
-ECHO $ALL_VERSION
-ECHO $LIVE_VERSION
+source inc/ask_sql_infos.sh
 
-# get current version value
-# from apache current version greping "DocumentRoot /var/www/html/" line and converting number
+systemctl stop apache2
 
-# grep VAR from ServerName glp11-neptunet
-# grep VAR from ServerAlias 192.168.0.99
+# Backup and remove old version
+if [ "$OLD_VERSION" != "N/A" ]; then
+	OLD_TAG="$(echo $OLD_VERSION | sed 's/\./_/g')"
+	OLD_FOLDER_NAME="glpi_$OLD_TAG"
+	OLD_FOLDER_PATH="/var/www/html/$OLD_FOLDER_NAME"
+	mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$OLD_TAG > /tmp/glpi_$OLD_TAG.sql
 
-# uninstall old version
-# a2dissite glpi_$GLPI_OLD_VERSION.conf
-# remove OLD version
-# echo "DROP DATABASE $GLPI_OLD_VERSION" | sudo mariadb
-# rm -rf PATH_TO/$GLPI_OLD_VERSION
+	zip -r "$HARD_BACKUPS_FILE"_"$OLD_TAG".zip \
+	/etc/apache2/sites-available/glpi-$OLD_VERSION.conf \
+	/tmp/glpi_$OLD_TAG.sql \
+	/var/www/html/glpi_$OLD_TAG/{config,files,marketplace,plugins}/
 
-# a2ensite glpi_$GLPI_VERSION.conf
+	chown -R www-data:www-data $HARD_BACKUPS_PATH
+	chmod 660 -R $HARD_BACKUPS_PATH
 
-# install new version
+	# clean up
+	a2dissite glpi_$OLD_VERSION.conf
+	rm -rf /var/www/html/glpi_$OLD_TAG/
+	rm /etc/apache2/sites-available/glpi-$OLD_VERSION.conf
+	echo "DROP DATABASE glpi_$OLD_TAG;" | mariadb
+fi
 
-# import database
+SERVER_NAME=$(cat /etc/apache2/sites-available/001-glpi.conf \
+	| grep -Eo 'ServerName .*$' \
+	| sed 's/ServerName //')
+SERVER_IP=$(cat /etc/apache2/sites-available/001-glpi.conf \
+	| grep -Eo 'ServerAlias .*$' \
+	| sed 's/ServerAlias //')
 
-# switch default route to new version
+source inc/setup_glpi_site.sh
+
+GLPI_PPREFIX=/var/www/html/glpi_
+# copy files
+cp -a $GLPI_PPREFIX$LIVE_TAG/config/* $GLPI_PPREFIX$GLPI_TAG/config/
+cp -a $GLPI_PPREFIX$LIVE_TAG/files/* $GLPI_PPREFIX$GLPI_TAG/files/
+cp -a $GLPI_PPREFIX$LIVE_TAG/marketplace/* $GLPI_PPREFIX$GLPI_TAG/marketplace/
+cp -a $GLPI_PPREFIX$LIVE_TAG/plugins/* $GLPI_PPREFIX$GLPI_TAG/plugins/
+chown -R www-data:www-data $GLPI_PPREFIX$GLPI_TAG/*
+chmod -R 660 $GLPI_PPREFIX$GLPI_TAG/*
+
+# import database and change database name
+cd $GLPI_FOLDER_PATH
+mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$LIVE_TAG | sed "s/-- MariaDB dump.*/USE glpi_$GLPI_TAG;/" | mariadb
+# sudo -u www-data yes | php bin/console db:configure -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+
+systemctl start apache2
