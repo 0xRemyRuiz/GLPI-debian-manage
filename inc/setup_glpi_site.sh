@@ -20,7 +20,7 @@ fi
 wget $GLPI_ARCHIVE_URL -O /tmp/$GLPI_ARCHIVE_FILENAME &&\
 tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C /var/www/html &&\
 mv /var/www/html/glpi $GLPI_FOLDER_PATH &&\
-chmod 660 -R $GLPI_FOLDER_PATH &&\
+chown -R www-data $GLPI_FOLDER_PATH &&\
 echo "INFO: File extraction is successful"
 
 # initialize database
@@ -62,9 +62,7 @@ echo "" >> /etc/apache2/sites-available/001-glpi.conf
 echo "# live version: $GLPI_VERSION" >> /etc/apache2/sites-available/001-glpi.conf
 
 cd $GLPI_FOLDER_PATH
-yes | php bin/console db:install --allow-superuser -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
-
-chown -R www-data:www-data $GLPI_FOLDER_PATH
+yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
 # Enable live version config
 a2ensite 001-glpi.conf

@@ -23,7 +23,7 @@ source inc/ask_server_infos.sh
 
 # set timezone
 read -p "Enter timezone: " LOCAL_TIMEZONE
-if [ "$LOCAL_TIMEZONE" != ""] ;then
+if [ "$LOCAL_TIMEZONE" != "" ] ;then
 	timedatectl set-timezone $LOCAL_TIMEZONE
 	mariadb-tzinfo-to-sql timezone_dir
 fi
@@ -40,7 +40,7 @@ source inc/setup_glpi_site.sh
 
 # Creating database
 # cd $GLPI_FOLDER_PATH
-# sudo -u www-data yes | php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+# yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
 systemctl start apache2
 
