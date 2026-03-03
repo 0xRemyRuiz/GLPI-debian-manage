@@ -8,8 +8,8 @@ fi
 source inc/check_root.sh
 
 # script to list installed version
-ALL_VERSION=$(ls -l /etc/apache2/sites-enabled/glpi-* | grep -Eo 'glpi-[0-9\.]*\.conf$' | sed 's/.conf//g')
-LIVE_VERSION=$(cat /etc/apache2/sites-enabled/glpi.conf | grep '# live version' | grep -Eo '([0-9]+\.?)+')
+ALL_VERSION=$(cat /etc/apache2/sites-enabled/*glpi*.conf | grep '# GLPI version' | grep -Eo '([0-9]+\.?)+')
+LIVE_VERSION=$(cat /etc/apache2/sites-enabled/001-glpi.conf | grep '# GLPI version' | grep -Eo '([0-9]+\.?)+')
 LIVE_TAG=$(echo "$LIVE_VERSION" | sed 's/\./_/g')
 
 if [ "$_LCL_VERBOSE_" == true ]; then

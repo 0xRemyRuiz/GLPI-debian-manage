@@ -65,7 +65,10 @@ cat rss/apache_archive_conf_template.txt \
 | sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
 | sed "s/_URL_/glpi_archive/g" \
 | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
+| sed "s/_GLPI_VERSION_/$LIVE_VERSION/g" \
 > /etc/apache2/sites-available/glpi-archive.conf
+
+# VERBOSE finish message
 
 # Download and setup new site
 source inc/setup_glpi_site.sh

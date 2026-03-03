@@ -21,3 +21,4 @@
     ErrorLog ${APACHE_LOG_DIR}/_GLPI_FOLDER_NAME__error.log
     CustomLog ${APACHE_LOG_DIR}/_GLPI_FOLDER_NAME__access.log combined
 </VirtualHost>
+# GLPI version _GLPI_VERSION_

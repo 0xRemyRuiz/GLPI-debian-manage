@@ -39,12 +39,8 @@ cat rss/apache_conf_template.txt \
 | sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
 | sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
 | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
+| sed "s/_GLPI_VERSION_/$GLPI_VERSION/g" \
 > /etc/apache2/sites-available/001-glpi.conf
-
-# adding return character
-echo "" >> /etc/apache2/sites-available/001-glpi.conf
-# adding live version tag
-echo "# live version: $GLPI_VERSION" >> /etc/apache2/sites-available/001-glpi.conf
 
 cp rss/glpi/local_define.php $GLPI_FOLDER_PATH/config/
 # setting http_only cookies
