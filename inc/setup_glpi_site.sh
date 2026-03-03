@@ -34,7 +34,6 @@ cat rss/install_glpi.sql \
 | mariadb
 
 # Building live version configuration
-cp /etc/apache2/sites-available/001-glpi.conf /etc/apache2/sites-available/glpi-old.conf 2> /dev/null
 cat rss/apache_conf_template.txt \
 | sed "s/_SERVER_NAME_/glpi/g" \
 | sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
@@ -42,12 +41,14 @@ cat rss/apache_conf_template.txt \
 | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
 > /etc/apache2/sites-available/001-glpi.conf
 
-# | sed "s/RewriteBase _URL_\//RewriteBase \//g" \
-
 # adding return character
 echo "" >> /etc/apache2/sites-available/001-glpi.conf
 # adding live version tag
 echo "# live version: $GLPI_VERSION" >> /etc/apache2/sites-available/001-glpi.conf
+
+cp rss/glpi/local_define.php $GLPI_FOLDER_PATH/config/
+# setting http_only cookies
+sudo find /etc -name "php.ini" -exec sed -i 's/session.cookie_httponly.*/session.cookie_httponly = 1/g' {} \+
 
 cd $GLPI_FOLDER_PATH
 yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD

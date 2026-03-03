@@ -41,7 +41,7 @@ if [ "$OLD_VERSION" != "N/A" ]; then
 	mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$OLD_TAG > /tmp/glpi_$OLD_TAG.sql
 
 	zip -r "$HARD_BACKUPS_FILE"_"$OLD_TAG".zip \
-	/etc/apache2/sites-available/glpi-$OLD_VERSION.conf \
+	/etc/apache2/sites-available/glpi-archive.conf \
 	/tmp/glpi_$OLD_TAG.sql \
 	/var/www/html/glpi_$OLD_TAG/{config,files,marketplace,plugins}/
 
@@ -49,19 +49,25 @@ if [ "$OLD_VERSION" != "N/A" ]; then
 	chmod 660 -R $HARD_BACKUPS_PATH
 
 	# clean up
-	a2dissite glpi_$OLD_VERSION.conf
 	rm -rf /var/www/html/glpi_$OLD_TAG/
-	rm /etc/apache2/sites-available/glpi-$OLD_VERSION.conf
+	rm /etc/apache2/sites-available/glpi-archive.conf
 	echo "DROP DATABASE glpi_$OLD_TAG;" | mariadb
 fi
 
-SERVER_NAME=$(cat /etc/apache2/sites-available/001-glpi.conf \
-	| grep -Eo 'ServerName .*$' \
-	| sed 's/ServerName //')
 SERVER_IP=$(cat /etc/apache2/sites-available/001-glpi.conf \
 	| grep -Eo 'ServerAlias .*$' \
 	| sed 's/ServerAlias //')
 
+# Building archive version configuration
+cat rss/apache_archive_conf_template.txt \
+| sed "s/_SERVER_NAME_/glpi-archive/g" \
+| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
+| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
+| sed "s/_URL_/glpi_archive/g" \
+| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
+> /etc/apache2/sites-available/glpi-archive.conf
+
+# Download and setup new site
 source inc/setup_glpi_site.sh
 
 GLPI_PPREFIX=/var/www/html/glpi_
@@ -71,11 +77,10 @@ cp -a $GLPI_PPREFIX$LIVE_TAG/files/* $GLPI_PPREFIX$GLPI_TAG/files/
 cp -a $GLPI_PPREFIX$LIVE_TAG/marketplace/* $GLPI_PPREFIX$GLPI_TAG/marketplace/
 cp -a $GLPI_PPREFIX$LIVE_TAG/plugins/* $GLPI_PPREFIX$GLPI_TAG/plugins/
 chown -R www-data:www-data $GLPI_PPREFIX$GLPI_TAG/*
-chmod -R 660 $GLPI_PPREFIX$GLPI_TAG/*
 
 # import database and change database name
-cd $GLPI_FOLDER_PATH
 mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$LIVE_TAG | sed "s/-- MariaDB dump.*/USE glpi_$GLPI_TAG;/" | mariadb
-# sudo -u www-data yes | php bin/console db:configure -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+cd $GLPI_FOLDER_PATH
+yes | sudo -u www-data php bin/console db:configure -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
 systemctl start apache2

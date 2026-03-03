@@ -1,3 +1,5 @@
 <?php
-define('GLPI_VAR_DIR', '/var/lib/glpi-_VERSION_/files');
-define('GLPI_LOG_DIR', '/var/log/glpi-_VERSION_');
+
+	// Remove Notice/Alert from session configuration 
+	ini_set('session.cookie_secure', 1);
+	ini_set('session.cookie_httponly', 1);

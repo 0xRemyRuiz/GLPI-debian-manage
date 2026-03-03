@@ -7,9 +7,9 @@ fi
 
 source inc/check_root.sh
 
-# if [ -d /var/www/html/glpi_* ]; then
-# 	echo "ERROR: GLPI already installed"; exit 1
-# fi
+if [ -d /var/www/html/glpi_* ]; then
+	echo "ERROR: GLPI already installed"; exit 1
+fi
 
 apt update -y &&\
 apt full-upgrade -y &&\
@@ -40,11 +40,7 @@ source inc/fetch_remote_glpi_tag.sh
 
 source inc/setup_glpi_site.sh
 
-# Creating database
-# cd $GLPI_FOLDER_PATH
-# yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
-
-chown -R www-data /var/www/html
+chown -R www-data:www-data /var/www/html
 
 systemctl start apache2
 

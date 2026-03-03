@@ -1,16 +1,16 @@
 <VirtualHost *:80>
     ServerName _SERVER_NAME_
     ServerAlias _SERVER_LOCAL_IP_
-    DocumentRoot /var/www/html/_GLPI_FOLDER_NAME_/public/
+    DocumentRoot /var/www/html/_GLPI_FOLDER_NAME_/
 
-    Alias _URL_ /var/www/html/_GLPI_FOLDER_NAME_/public
+    Alias /_URL_ /var/www/html/_GLPI_FOLDER_NAME_/public
 
     <Directory /var/www/html/_GLPI_FOLDER_NAME_/public>
         Options -Indexes +FollowSymLinks
         Require all granted
         RewriteEngine On
 
-        RewriteBase _URL_/
+        RewriteBase /_URL_/
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
         RewriteRule ^ index.php [QSA,L]
