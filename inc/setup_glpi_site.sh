@@ -20,7 +20,6 @@ fi
 wget $GLPI_ARCHIVE_URL -O /tmp/$GLPI_ARCHIVE_FILENAME &&\
 tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C /var/www/html &&\
 mv /var/www/html/glpi $GLPI_FOLDER_PATH &&\
-chown -R www-data:www-data $GLPI_FOLDER_PATH &&\
 chmod 660 -R $GLPI_FOLDER_PATH &&\
 echo "INFO: File extraction is successful"
 
@@ -47,7 +46,7 @@ cat rss/apache_conf_template.txt \
 a2ensite glpi-$GLPI_VERSION.conf
 
 # Building live version configuration
-cp /etc/apache2/sites-available/glpi.conf /etc/apache2/sites-available/glpi-old.conf
+cp /etc/apache2/sites-available/001-glpi.conf /etc/apache2/sites-available/glpi-old.conf 2> /dev/null
 cat rss/apache_conf_template.txt \
 | sed "s/_SERVER_NAME_/$SERVER_NAME/g" \
 | sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
@@ -63,8 +62,9 @@ echo "" >> /etc/apache2/sites-available/001-glpi.conf
 echo "# live version: $GLPI_VERSION" >> /etc/apache2/sites-available/001-glpi.conf
 
 cd $GLPI_FOLDER_PATH
-sudo -u www-data yes | php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+yes | php bin/console db:install --allow-superuser -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
+chown -R www-data:www-data $GLPI_FOLDER_PATH
 
 # Enable live version config
 a2ensite 001-glpi.conf
