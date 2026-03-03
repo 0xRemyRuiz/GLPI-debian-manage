@@ -7,9 +7,9 @@ fi
 
 source inc/check_root.sh
 
-if [ -d /var/www/html/glpi_* ]; then
-	echo "ERROR: GLPI already installed"; exit 1
-fi
+# if [ -d /var/www/html/glpi_* ]; then
+# 	echo "ERROR: GLPI already installed"; exit 1
+# fi
 
 apt update -y &&\
 apt full-upgrade -y &&\
@@ -20,6 +20,8 @@ apt install -y zip unzip curl ipcalc \
 # ask for server name and local ip
 source inc/ask_sql_infos.sh
 source inc/ask_server_infos.sh
+
+echo "CREATE USER $SQL_USERNAME@localhost IDENTIFIED BY \"$SQL_PASSWORD\";" | mariadb
 
 # set timezone
 read -p "Enter timezone: " LOCAL_TIMEZONE

@@ -20,7 +20,7 @@ fi
 wget $GLPI_ARCHIVE_URL -O /tmp/$GLPI_ARCHIVE_FILENAME &&\
 tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C /var/www/html &&\
 mv /var/www/html/glpi $GLPI_FOLDER_PATH &&\
-chown -R www-data $GLPI_FOLDER_PATH &&\
+chown -R www-data:www-data /var/www/html &&\
 echo "INFO: File extraction is successful"
 
 # initialize database
@@ -33,28 +33,16 @@ cat rss/install_glpi.sql \
 | sed "s/_SQL_PASSWORD_/$SQL_PASSWORD/g" \
 | mariadb
 
-# Building site configuration
-cat rss/apache_conf_template.txt \
-| sed "s/_SERVER_NAME_/$SERVER_NAME/g" \
-| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
-| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
-| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
-| sed "s/_URL_/\/glpi_$GLPI_TAG/g" \
-> /etc/apache2/sites-available/glpi-$GLPI_VERSION.conf
-
-# Enable site config
-a2ensite glpi-$GLPI_VERSION.conf
-
 # Building live version configuration
 cp /etc/apache2/sites-available/001-glpi.conf /etc/apache2/sites-available/glpi-old.conf 2> /dev/null
 cat rss/apache_conf_template.txt \
-| sed "s/_SERVER_NAME_/$SERVER_NAME/g" \
+| sed "s/_SERVER_NAME_/glpi/g" \
 | sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
 | sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
 | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
-| sed "s/RewriteBase _URL_\//RewriteBase _URL_/g" \
-| sed "s/_URL_/\//g" \
 > /etc/apache2/sites-available/001-glpi.conf
+
+# | sed "s/RewriteBase _URL_\//RewriteBase \//g" \
 
 # adding return character
 echo "" >> /etc/apache2/sites-available/001-glpi.conf
