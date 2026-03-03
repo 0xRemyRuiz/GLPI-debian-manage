@@ -42,6 +42,8 @@ source inc/setup_glpi_site.sh
 # cd $GLPI_FOLDER_PATH
 # yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
+chown -R www-data /var/www/html
+
 systemctl start apache2
 
 echo "˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳"

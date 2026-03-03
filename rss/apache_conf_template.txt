@@ -1,7 +1,7 @@
 <VirtualHost *:80>
     ServerName _SERVER_NAME_
     ServerAlias _SERVER_LOCAL_IP_
-    DocumentRoot /var/www/html/_GLPI_FOLDER_NAME_/public
+    DocumentRoot /var/www/html
 
     Alias _URL_ /var/www/html/_GLPI_FOLDER_NAME_/public
 
