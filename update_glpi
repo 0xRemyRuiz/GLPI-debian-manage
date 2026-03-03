@@ -21,7 +21,7 @@ HARD_BACKUPS_FILE=$HARD_BACKUPS_PATH/glpi_$(date +'%d_%m-%H_%M')
 mkdir -p $HARD_BACKUPS_PATH
 chown -R www-data $HARD_BACKUPS_PATH
 
-OLD_VERSION=$(echo "$ALL_VERSION" | grep -v "$LIVE_VERSION" | sed 's/glpi-//')
+OLD_VERSION=$(echo "$ALL_VERSION" | grep -v "$LIVE_VERSION")
 if [ "$OLD_VERSION" == "" ]; then
 	OLD_VERSION="N/A"
 fi
@@ -64,10 +64,11 @@ cat rss/apache_archive_conf_template.txt \
 | sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
 | sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
 | sed "s/_URL_/glpi_archive/g" \
-| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
+| sed "s/_GLPI_FOLDER_NAME_/$GLPI_PPREFIX$LIVE_TAG/g" \
 | sed "s/_GLPI_VERSION_/$LIVE_VERSION/g" \
 > /etc/apache2/sites-available/glpi-archive.conf
 
+a2ensite glpi-archive.conf
 # VERBOSE finish message
 
 # Download and setup new site
@@ -84,6 +85,7 @@ chown -R www-data:www-data $GLPI_PPREFIX$GLPI_TAG/*
 # import database and change database name
 mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$LIVE_TAG | sed "s/-- MariaDB dump.*/USE glpi_$GLPI_TAG;/" | mariadb
 cd $GLPI_FOLDER_PATH
-yes | sudo -u www-data php bin/console db:configure -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+yes | sudo -u www-data php bin/console db:configure --reconfigure -u $SQL_USERNAME -p $SQL_PASSWORD -d glpi_$GLPI_TAG
+yes | sudo -u www-data php bin/console db:update
 
 systemctl start apache2

@@ -46,8 +46,5 @@ cp rss/glpi/local_define.php $GLPI_FOLDER_PATH/config/
 # setting http_only cookies
 sudo find /etc -name "php.ini" -exec sed -i 's/session.cookie_httponly.*/session.cookie_httponly = 1/g' {} \+
 
-cd $GLPI_FOLDER_PATH
-yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
-
 # Enable live version config
 a2ensite 001-glpi.conf
