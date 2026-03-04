@@ -1,8 +1,0 @@
-#!/bin/bash
-
-_LCL_VERBOSE_=false
-if [ "$1" == "-v" ]; then
-	_LCL_VERBOSE_=true
-fi
-
-echo "Command is not implemented yet"

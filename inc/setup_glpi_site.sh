@@ -23,26 +23,31 @@ mv /var/www/html/glpi $GLPI_FOLDER_PATH &&\
 chown -R www-data:www-data /var/www/html &&\
 echo "INFO: File extraction is successful"
 
+mkdir -p /home/www-data/$GLPI_FOLDER_NAME
+mv $GLPI_FOLDER_PATH/files /home/www-data/$GLPI_FOLDER_NAME
+chown -R www-data:www-data /home/www-data
+
 # initialize database
 if [ "$_LCL_VERBOSE_" == true ]; then
 	echo "DEBUG: Reinitializing database"
 fi
 cat rss/install_glpi.sql \
-| sed "s/_VERSION_/$GLPI_TAG/g" \
-| sed "s/_SQL_USERNAME_/$SQL_USERNAME/g" \
-| sed "s/_SQL_PASSWORD_/$SQL_PASSWORD/g" \
-| mariadb
+	| sed "s/_VERSION_/$GLPI_TAG/g" \
+	| sed "s/_SQL_USERNAME_/$SQL_USERNAME/g" \
+	| sed "s/_SQL_PASSWORD_/$SQL_PASSWORD/g" \
+	| mariadb
 
 # Building live version configuration
 cat rss/apache_conf_template.txt \
-| sed "s/_SERVER_NAME_/glpi/g" \
-| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
-| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
-| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
-| sed "s/_GLPI_VERSION_/$GLPI_VERSION/g" \
-> /etc/apache2/sites-available/001-glpi.conf
+	| sed "s/_SERVER_NAME_/glpi/g" \
+	| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
+	| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
+	| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
+	| sed "s/_GLPI_VERSION_/$GLPI_VERSION/g" \
+	> /etc/apache2/sites-available/001-glpi.conf
 
-cp rss/glpi/local_define.php $GLPI_FOLDER_PATH/config/
+mkdir -p /home/www-data/$GLPI_FOLDER_NAME
+cat rss/glpi/local_define.php | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/" > $GLPI_FOLDER_PATH/config/local_define.php
 # setting http_only cookies
 sudo find /etc -name "php.ini" -exec sed -i 's/session.cookie_httponly.*/session.cookie_httponly = 1/g' {} \+
 

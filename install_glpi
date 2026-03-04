@@ -11,9 +11,9 @@ if [ -d /var/www/html/glpi_* ]; then
 	echo "ERROR: GLPI already installed"; exit 1
 fi
 
-apt update -y &&\
-apt full-upgrade -y &&\
-apt install -y zip unzip curl ipcalc \
+apt-get update -y &&\
+apt-get full-upgrade -y &&\
+apt-get install -y zip unzip curl ipcalc \
 	apt-transport-https apache2 mariadb-server \
 	php php-{fpm,mysql,mbstring,curl,gd,xml,intl,ldap,apcu,xmlrpc,zip,bz2,bcmath}
 
@@ -47,6 +47,7 @@ chown -R www-data:www-data /var/www/html
 
 systemctl start apache2
 
+echo ""
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo "      HURAY! Installation is now complete!     "

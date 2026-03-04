@@ -41,15 +41,17 @@ if [ "$OLD_VERSION" != "N/A" ]; then
 	mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$OLD_TAG > /tmp/glpi_$OLD_TAG.sql
 
 	zip -r "$HARD_BACKUPS_FILE"_"$OLD_TAG".zip \
-	/etc/apache2/sites-available/glpi-archive.conf \
-	/tmp/glpi_$OLD_TAG.sql \
-	/var/www/html/glpi_$OLD_TAG/{config,files,marketplace,plugins}/
+		/etc/apache2/sites-available/glpi-archive.conf \
+		/tmp/glpi_$OLD_TAG.sql \
+		/home/www-data/glpi_$OLD_TAG/files/ \
+		/var/www/html/glpi_$OLD_TAG/{config,marketplace,plugins}/
 
 	chown -R www-data:www-data $HARD_BACKUPS_PATH
 	chmod 660 -R $HARD_BACKUPS_PATH
 
 	# clean up
 	rm -rf /var/www/html/glpi_$OLD_TAG/
+	rm -rf /home/www-data/glpi_$OLD_TAG/files/
 	rm /etc/apache2/sites-available/glpi-archive.conf
 	echo "DROP DATABASE glpi_$OLD_TAG;" | mariadb
 fi
@@ -60,13 +62,13 @@ SERVER_IP=$(cat /etc/apache2/sites-available/001-glpi.conf \
 
 # Building archive version configuration
 cat rss/apache_archive_conf_template.txt \
-| sed "s/_SERVER_NAME_/glpi-archive/g" \
-| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
-| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
-| sed "s/_URL_/glpi_archive/g" \
-| sed "s/_GLPI_FOLDER_NAME_/$GLPI_PPREFIX$LIVE_TAG/g" \
-| sed "s/_GLPI_VERSION_/$LIVE_VERSION/g" \
-> /etc/apache2/sites-available/glpi-archive.conf
+	| sed "s/_SERVER_NAME_/glpi-archive/g" \
+	| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
+	| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
+	| sed "s/_URL_/glpi_archive/g" \
+	| sed "s/_GLPI_FOLDER_NAME_/$GLPI_PPREFIX$LIVE_TAG/g" \
+	| sed "s/_GLPI_VERSION_/$LIVE_VERSION/g" \
+	> /etc/apache2/sites-available/glpi-archive.conf
 
 a2ensite glpi-archive.conf
 # VERBOSE finish message
@@ -76,8 +78,8 @@ source inc/setup_glpi_site.sh
 
 GLPI_PPREFIX=/var/www/html/glpi_
 # copy files
+cp -a /home/www-data/$GLPI_PPREFIX$LIVE_TAG/files/* /home/www-data/$GLPI_PPREFIX$GLPI_TAG/files/
 cp -a $GLPI_PPREFIX$LIVE_TAG/config/* $GLPI_PPREFIX$GLPI_TAG/config/
-cp -a $GLPI_PPREFIX$LIVE_TAG/files/* $GLPI_PPREFIX$GLPI_TAG/files/
 cp -a $GLPI_PPREFIX$LIVE_TAG/marketplace/* $GLPI_PPREFIX$GLPI_TAG/marketplace/
 cp -a $GLPI_PPREFIX$LIVE_TAG/plugins/* $GLPI_PPREFIX$GLPI_TAG/plugins/
 chown -R www-data:www-data $GLPI_PPREFIX$GLPI_TAG/*
@@ -90,6 +92,7 @@ yes | sudo -u www-data php bin/console db:update
 
 systemctl start apache2
 
+echo ""
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo "        HURAY! Update is now complete!         "
