@@ -37,19 +37,19 @@ a2enconf php*-fpm
 a2dissite 000-default.conf
 
 source inc/fetch_remote_glpi_tag.sh
-GLPI_VERSION=10.0.21
-GLPI_TAG=10_0_21
 
 source inc/setup_glpi_site.sh
 
 cd $GLPI_FOLDER_PATH
-yes | sudo -u www-data php bin/console db:install -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
+yes | sudo -u www-data php bin/console db:install -L fr_FR -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
 chown -R www-data:www-data /var/www/html
 
 systemctl start apache2
 
-echo "˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳"
-echo "˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙"
-echo "HURAY! Installation is now complete, go to http://$SERVER_IP and check if everything is fine."
+echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
+echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
+echo "      HURAY! Installation is now complete!     "
+echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
+echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 
