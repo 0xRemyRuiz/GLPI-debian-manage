@@ -16,10 +16,10 @@ if [ "$GLPI_VERSION" ==  "$LIVE_VERSION" ]; then
 	exit 0
 fi
 
-HARD_BACKUPS_PATH=/home/www-data-backups
+HARD_BACKUPS_PATH=/home/www-data/backups
 HARD_BACKUPS_FILE=$HARD_BACKUPS_PATH/glpi_$(date +'%d_%m-%H_%M')
 mkdir -p $HARD_BACKUPS_PATH
-chown -R www-data $HARD_BACKUPS_PATH
+chown -R www-data:www-data $HARD_BACKUPS_PATH
 
 OLD_VERSION=$(echo "$ALL_VERSION" | grep -v "$LIVE_VERSION")
 if [ "$OLD_VERSION" == "" ]; then
