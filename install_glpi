@@ -5,10 +5,11 @@ if [ "$1" == "-v" ]; then
 	_LCL_VERBOSE_=true
 fi
 
+source inc/colors.sh
 source inc/check_root.sh
 
 if [ -d /var/www/html/glpi_* ]; then
-	echo "ERROR: GLPI already installed"; exit 1
+	echo -e "$BRed""ERROR$CRST: GLPI already installed"; exit 1
 fi
 
 apt-get update -y &&\
@@ -50,7 +51,7 @@ systemctl start apache2
 echo ""
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
-echo "      HURAY! Installation is now complete!     "
+echo "$BGreen      HURAY! Installation is now complete!$CRST"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 

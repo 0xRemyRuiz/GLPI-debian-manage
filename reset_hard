@@ -1,5 +1,10 @@
 #!/bin/bash
 
+source inc/colors.sh
+
+echo -e "$BYellow""WARNING$CRST bypass option forces deletion, press a key to continue"
+read -n 1 -s
+
 sudo a2dissite '*'
 sudo rm -rf /var/www/html/glpi*
 sudo rm /etc/apache2/sites-available/*glpi*

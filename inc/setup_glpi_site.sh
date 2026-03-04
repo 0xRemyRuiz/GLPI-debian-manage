@@ -8,8 +8,8 @@ GLPI_FOLDER_PATH="/var/www/html/$GLPI_FOLDER_NAME"
 GLPI_ARCHIVE_FILENAME="glpi-$GLPI_VERSION.tgz"
 GLPI_ARCHIVE_URL="https://github.com/glpi-project/glpi/releases/download/$GLPI_VERSION/$GLPI_ARCHIVE_FILENAME"
 if [ "$_LCL_VERBOSE_" == true ]; then
-	echo "DEBUG: GLPI folder is $GLPI_FOLDER_PATH"
-	echo "DEBUG: getting GLPI archive from $GLPI_ARCHIVE_URL"
+	echo -e "$BGreen""DEBUG$CRST: GLPI folder is $GLPI_FOLDER_PATH"
+	echo -e "$BGreen""DEBUG$CRST: getting GLPI archive from $GLPI_ARCHIVE_URL"
 fi
 
 TAR_TAGS="-xzf"
@@ -29,7 +29,7 @@ chown -R www-data:www-data /home/www-data
 
 # initialize database
 if [ "$_LCL_VERBOSE_" == true ]; then
-	echo "DEBUG: Reinitializing database"
+	echo -e "$BGreen""DEBUG$CRST: Reinitializing database"
 fi
 cat rss/install_glpi.sql \
 	| sed "s/_VERSION_/$GLPI_TAG/g" \

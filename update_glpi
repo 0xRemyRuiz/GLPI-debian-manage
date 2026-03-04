@@ -5,6 +5,7 @@ if [ "$1" == "-v" ]; then
 	_LCL_VERBOSE_=true
 fi
 
+source inc/colors.sh
 # root check is done in list_glpi_versions
 source list_glpi_versions
 
@@ -12,7 +13,7 @@ source list_glpi_versions
 source inc/fetch_remote_glpi_tag.sh
 
 if [ "$GLPI_VERSION" ==  "$LIVE_VERSION" ]; then
-	echo "Current live version si already up to date, exiting..."
+	echo -e "$Blue""INFO$CRST: Current live version si already up to date, exiting..."
 	exit 0
 fi
 
@@ -21,12 +22,12 @@ HARD_BACKUPS_FILE=$HARD_BACKUPS_PATH/glpi_$(date +'%d_%m-%H_%M')
 mkdir -p $HARD_BACKUPS_PATH
 chown -R www-data:www-data $HARD_BACKUPS_PATH
 
-OLD_VERSION=$(echo "$ALL_VERSION" | grep -v "$LIVE_VERSION")
+OLD_VERSION=$(echo -e "$ALL_VERSION" | grep -v "$LIVE_VERSION")
 if [ "$OLD_VERSION" == "" ]; then
 	OLD_VERSION="N/A"
 fi
 if [ "$_LCL_VERBOSE_" == true ]; then
-	echo "Old verion found: $OLD_VERSION"
+	echo -e "$BGreen""DEBUG$CRST: Old verion found: $OLD_VERSION"
 fi
 
 source inc/ask_sql_infos.sh
@@ -35,19 +36,32 @@ systemctl stop apache2
 
 # Backup and remove old version
 if [ "$OLD_VERSION" != "N/A" ]; then
+	if [ "$_LCL_VERBOSE_" == true ]; then
+		echo -e "$Green""DEBUG$CRST: An old version has been found, backup and remove..."
+	fi
 	OLD_TAG="$(echo $OLD_VERSION | sed 's/\./_/g')"
 	OLD_FOLDER_NAME="glpi_$OLD_TAG"
 	OLD_FOLDER_PATH="/var/www/html/$OLD_FOLDER_NAME"
-	mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$OLD_TAG > /tmp/glpi_$OLD_TAG.sql
 
+	STATUS="mysqldump?"
+	mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$OLD_TAG > /tmp/glpi_$OLD_TAG.sql \
+		&& STATUS="ok"
+	if [ "$STATUS" != "ok" ]; then
+		echo -e "$BRed""ERROR$CRST: mysqldump failed, process aborted"; exit 1
+	fi
+
+	STATUS="zip?"
 	zip -r "$HARD_BACKUPS_FILE"_"$OLD_TAG".zip \
 		/etc/apache2/sites-available/glpi-archive.conf \
 		/tmp/glpi_$OLD_TAG.sql \
 		/home/www-data/glpi_$OLD_TAG/files/ \
-		/var/www/html/glpi_$OLD_TAG/{config,marketplace,plugins}/
+		/var/www/html/glpi_$OLD_TAG/{config,marketplace,plugins}/ \
+			&& STATUS="ok"
+	if [ "$STATUS" != "ok" ]; then
+		echo -e "$Bred""ERROR$CRST: zip failed, process aborted"; exit 1
+	fi
 
 	chown -R www-data:www-data $HARD_BACKUPS_PATH
-	chmod 660 -R $HARD_BACKUPS_PATH
 
 	# clean up
 	rm -rf /var/www/html/glpi_$OLD_TAG/
@@ -85,7 +99,15 @@ cp -a $GLPI_PPREFIX$LIVE_TAG/plugins/* $GLPI_PPREFIX$GLPI_TAG/plugins/
 chown -R www-data:www-data $GLPI_PPREFIX$GLPI_TAG/*
 
 # import database and change database name
+STATUS="import db"
 mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$LIVE_TAG | sed "s/-- MariaDB dump.*/USE glpi_$GLPI_TAG;/" | mariadb
+	&& STATUS="ok"
+if [ "$STATUS" != "ok" ]; then
+	echo -e "$BYellow""WARNING$CRST: import SQL database failed"
+	echo "Executed command was: "'mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$LIVE_TAG | sed "s/-- MariaDB dump.*/USE glpi_$GLPI_TAG;/" | mariadb'
+	exit 1
+fi
+
 cd $GLPI_FOLDER_PATH
 yes | sudo -u www-data php bin/console db:configure --reconfigure -u $SQL_USERNAME -p $SQL_PASSWORD -d glpi_$GLPI_TAG
 yes | sudo -u www-data php bin/console db:update
@@ -95,6 +117,6 @@ systemctl start apache2
 echo ""
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
-echo "        HURAY! Update is now complete!         "
+echo -e "$Green        HURAY! Update is now complete!$CRST         "
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
 echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
