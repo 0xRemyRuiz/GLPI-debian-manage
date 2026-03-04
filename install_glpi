@@ -14,7 +14,7 @@ fi
 apt-get update -y &&\
 apt-get full-upgrade -y &&\
 apt-get install -y zip unzip curl ipcalc \
-	apt-transport-https apache2 mariadb-server \
+	apt-transport-https sudo yes apache2 mariadb-server \
 	php php-{fpm,mysql,mbstring,curl,gd,xml,intl,ldap,apcu,xmlrpc,zip,bz2,bcmath}
 
 # ask for server name and local ip
