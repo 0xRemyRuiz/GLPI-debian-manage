@@ -14,15 +14,17 @@ fi
 
 apt-get update -y &&\
 apt-get full-upgrade -y &&\
-apt-get install -y zip unzip curl ipcalc \
-	apt-transport-https sudo yes apache2 mariadb-server \
+apt-get install -y apt-transport-https apache2 mariadb-server \
 	php php-{fpm,mysql,mbstring,curl,gd,xml,intl,ldap,apcu,xmlrpc,zip,bz2,bcmath}
+
+apt-get install -y zip unzip curl ipcalc sudo
+apt-get install -y yes
 
 # ask for server name and local ip
 source inc/ask_sql_infos.sh
 source inc/ask_server_infos.sh
 
-echo "CREATE USER $SQL_USERNAME@localhost IDENTIFIED BY \"$SQL_PASSWORD\";" | mariadb
+# echo "CREATE USER $SQL_USERNAME@localhost IDENTIFIED BY \"$SQL_PASSWORD\";" | mariadb
 
 # set timezone
 read -p "Enter timezone: " LOCAL_TIMEZONE
@@ -49,9 +51,8 @@ chown -R www-data:www-data /var/www/html
 systemctl start apache2
 
 echo ""
-echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
-echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
+echo '_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/'
+echo '"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\'
 echo "$BGreen      HURAY! Installation is now complete!$CRST"
-echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
-echo ".⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳˳.⋅˙˙⋅.˳"
-
+echo '_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/'
+echo '"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\_/"\'
