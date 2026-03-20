@@ -1,4 +1,4 @@
-source colors.sh
+source globals/colors.sh
 
 # standlone bypass for testing and reset only
 if [ "$1" = "bypass" ]; then
@@ -26,7 +26,7 @@ if [ "$_LCL_VERBOSE_" == "" ]; then
 fi
 
 GLPI_FOLDER_NAME="glpi_$GLPI_TAG"
-GLPI_FOLDER_PATH="/var/www/html/$GLPI_FOLDER_NAME"
+GLPI_FOLDER_PATH="$WWW_DIR/$GLPI_FOLDER_NAME"
 
 if [ "$_LCL_VERBOSE_" == true ]; then
 	echo "$BGreen""DEBUG$CRST: Disabling site"

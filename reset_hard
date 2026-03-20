@@ -1,14 +1,14 @@
 #!/bin/bash
 
-source inc/colors.sh
+source inc/globals/variables.sh
+source inc/globals/colors.sh
 
-echo -e "$BYellow""WARNING$CRST bypass option forces deletion, press a key to continue"
+echo -e "$BRed""WARNING$CRST bypass option forces deletion, press a key to continue"
 read -n 1 -s
 
 sudo a2dissite '*'
-sudo rm -rf /var/www/html/glpi*
+sudo rm -rf $WWW_DIR/glpi*
 sudo rm /etc/apache2/sites-available/*glpi*
-echo "DROP DATABASE ""$(echo "SHOW DATABASES LIKE '%glpi%';" | sudo mariadb | grep glpi_ | head -n 1)"";" | sudo mariadb
 echo "DROP DATABASE ""$(echo "SHOW DATABASES LIKE '%glpi%';" | sudo mariadb | grep glpi_ | head -n 1)"";" | sudo mariadb
 sudo systemctl restart apache2
 

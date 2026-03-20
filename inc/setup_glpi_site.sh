@@ -4,7 +4,7 @@ if [ "$_LCL_VERBOSE_" == "" ]; then
 fi
 
 GLPI_FOLDER_NAME="glpi_$GLPI_TAG"
-GLPI_FOLDER_PATH="/var/www/html/$GLPI_FOLDER_NAME"
+GLPI_FOLDER_PATH="$WWW_DIR/$GLPI_FOLDER_NAME"
 GLPI_ARCHIVE_FILENAME="glpi-$GLPI_VERSION.tgz"
 GLPI_ARCHIVE_URL="https://github.com/glpi-project/glpi/releases/download/$GLPI_VERSION/$GLPI_ARCHIVE_FILENAME"
 if [ "$_LCL_VERBOSE_" == true ]; then
@@ -18,9 +18,9 @@ if [ "$_LCL_VERBOSE_" == true ]; then
 fi
 # Download and extract official archive
 wget $GLPI_ARCHIVE_URL -O /tmp/$GLPI_ARCHIVE_FILENAME &&\
-tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C /var/www/html &&\
-mv /var/www/html/glpi $GLPI_FOLDER_PATH &&\
-chown -R www-data:www-data /var/www/html &&\
+tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C $WWW_DIR &&\
+mv $WWW_DIR/glpi $GLPI_FOLDER_PATH &&\
+chown -R www-data:www-data $WWW_DIR &&\
 echo "INFO: File extraction is successful"
 
 mkdir -p /home/www-data/$GLPI_FOLDER_NAME
@@ -42,6 +42,7 @@ cat rss/apache_conf_template.txt \
 	| sed "s/_SERVER_NAME_/glpi/g" \
 	| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
 	| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
+	| sed "s/_WWW_DIR_/$WWW_DIR/g" \
 	| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
 	| sed "s/_GLPI_VERSION_/$GLPI_VERSION/g" \
 	> /etc/apache2/sites-available/001-glpi.conf

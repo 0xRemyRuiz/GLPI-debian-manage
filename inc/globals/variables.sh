@@ -1,0 +1,2 @@
+
+WWW_DIR=/var/www/html

@@ -5,10 +5,12 @@ if [ "$1" == "-v" ]; then
 	_LCL_VERBOSE_=true
 fi
 
-source inc/colors.sh
+source inc/globals/variables.sh
+source inc/globals/colors.sh
+
 source inc/check_root.sh
 
-if [ -d /var/www/html/glpi_* ]; then
+if [ -d $WWW_DIR/glpi_* ]; then
 	echo -e "$BRed""ERROR$CRST: GLPI already installed"; exit 1
 fi
 
@@ -46,7 +48,7 @@ source inc/setup_glpi_site.sh
 cd $GLPI_FOLDER_PATH
 yes | sudo -u www-data php bin/console db:install -L fr_FR -d glpi_$GLPI_TAG -u $SQL_USERNAME -p $SQL_PASSWORD
 
-chown -R www-data:www-data /var/www/html
+chown -R www-data:www-data $WWW_DIR
 
 systemctl start apache2
 

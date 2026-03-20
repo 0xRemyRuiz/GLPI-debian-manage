@@ -1,9 +1,9 @@
 <VirtualHost *:80>
     ServerName _SERVER_NAME_
     ServerAlias _SERVER_LOCAL_IP_
-    DocumentRoot /var/www/html/_GLPI_FOLDER_NAME_/public/
+    DocumentRoot _WWW_DIR_/_GLPI_FOLDER_NAME_/public/
 
-    <Directory /var/www/html/_GLPI_FOLDER_NAME_/public>
+    <Directory _WWW_DIR_/_GLPI_FOLDER_NAME_/public>
         Options -Indexes +FollowSymLinks
         Require all granted
         RewriteEngine On

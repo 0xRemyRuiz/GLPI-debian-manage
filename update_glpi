@@ -5,7 +5,9 @@ if [ "$1" == "-v" ]; then
 	_LCL_VERBOSE_=true
 fi
 
-source inc/colors.sh
+source inc/globals/variables.sh
+source inc/globals/colors.sh
+
 # root check is done in list_glpi_versions
 source list_glpi_versions
 
@@ -41,7 +43,7 @@ if [ "$OLD_VERSION" != "N/A" ]; then
 	fi
 	OLD_TAG="$(echo $OLD_VERSION | sed 's/\./_/g')"
 	OLD_FOLDER_NAME="glpi_$OLD_TAG"
-	OLD_FOLDER_PATH="/var/www/html/$OLD_FOLDER_NAME"
+	OLD_FOLDER_PATH="$WWW_DIR/$OLD_FOLDER_NAME"
 
 	STATUS="mysqldump?"
 	mysqldump -u $SQL_USERNAME -p$SQL_PASSWORD glpi_$OLD_TAG > /tmp/glpi_$OLD_TAG.sql \
@@ -55,7 +57,7 @@ if [ "$OLD_VERSION" != "N/A" ]; then
 		/etc/apache2/sites-available/glpi-archive.conf \
 		/tmp/glpi_$OLD_TAG.sql \
 		/home/www-data/glpi_$OLD_TAG/files/ \
-		/var/www/html/glpi_$OLD_TAG/{config,marketplace,plugins}/ \
+		$WWW_DIR/glpi_$OLD_TAG/{config,marketplace,plugins}/ \
 			&& STATUS="ok"
 	if [ "$STATUS" != "ok" ]; then
 		echo -e "$Bred""ERROR$CRST: zip failed, process aborted"; exit 1
@@ -64,7 +66,7 @@ if [ "$OLD_VERSION" != "N/A" ]; then
 	chown -R www-data:www-data $HARD_BACKUPS_PATH
 
 	# clean up
-	rm -rf /var/www/html/glpi_$OLD_TAG/
+	rm -rf $WWW_DIR/glpi_$OLD_TAG/
 	rm -rf /home/www-data/glpi_$OLD_TAG/files/
 	rm /etc/apache2/sites-available/glpi-archive.conf
 	echo "DROP DATABASE glpi_$OLD_TAG;" | mariadb
@@ -79,6 +81,7 @@ cat rss/apache_archive_conf_template.txt \
 	| sed "s/_SERVER_NAME_/glpi-archive/g" \
 	| sed "s/_SERVER_LOCAL_IP_/$SERVER_IP/g" \
 	| sed "s/_PHP_VERSION_/$CURR_PHP_VER/g" \
+	| sed "s/_WWW_DIR_/$WWW_DIR/g" \
 	| sed "s/_URL_/glpi_archive/g" \
 	| sed "s/_GLPI_FOLDER_NAME_/$GLPI_PPREFIX$LIVE_TAG/g" \
 	| sed "s/_GLPI_VERSION_/$LIVE_VERSION/g" \
@@ -90,7 +93,7 @@ a2ensite glpi-archive.conf
 # Download and setup new site
 source inc/setup_glpi_site.sh
 
-GLPI_PPREFIX=/var/www/html/glpi_
+GLPI_PPREFIX=$WWW_DIR/glpi_
 # copy files
 cp -a /home/www-data/$GLPI_PPREFIX$LIVE_TAG/files/* /home/www-data/$GLPI_PPREFIX$GLPI_TAG/files/
 cp -a $GLPI_PPREFIX$LIVE_TAG/config/* $GLPI_PPREFIX$GLPI_TAG/config/
