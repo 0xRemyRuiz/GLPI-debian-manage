@@ -13,9 +13,9 @@ if [ "$_LCL_VERBOSE_" == true ]; then
 fi
 
 TAR_TAGS="-xzf"
-if [ "$_LCL_VERBOSE_" == true ]; then
-	TAR_TAGS="-xzvf"
-fi
+# if [ "$_LCL_VERBOSE_" == true ]; then
+# 	TAR_TAGS="-xzvf"
+# fi
 # Download and extract official archive
 wget $GLPI_ARCHIVE_URL -O /tmp/$GLPI_ARCHIVE_FILENAME &&\
 tar $TAR_TAGS /tmp/$GLPI_ARCHIVE_FILENAME -C $WWW_DIR &&\
@@ -28,14 +28,14 @@ mv $GLPI_FOLDER_PATH/files /home/www-data/$GLPI_FOLDER_NAME
 chown -R www-data:www-data /home/www-data
 
 # initialize database
-if [ "$_LCL_VERBOSE_" == true ]; then
-	echo -e "$BGreen""DEBUG$CRST: Reinitializing database"
-fi
 cat rss/install_glpi.sql \
 	| sed "s/_VERSION_/$GLPI_TAG/g" \
 	| sed "s/_SQL_USERNAME_/$SQL_USERNAME/g" \
 	| sed "s/_SQL_PASSWORD_/$SQL_PASSWORD/g" \
 	| mariadb
+if [ "$_LCL_VERBOSE_" == true ]; then
+	echo -e "$BGreen""DEBUG$CRST: Initialized database"
+fi
 
 # Building live version configuration
 cat rss/apache_conf_template.txt \
@@ -46,11 +46,14 @@ cat rss/apache_conf_template.txt \
 	| sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/g" \
 	| sed "s/_GLPI_VERSION_/$GLPI_VERSION/g" \
 	> /etc/apache2/sites-available/001-glpi.conf
+if [ "$_LCL_VERBOSE_" == true ]; then
+	echo -e "$BGreen""DEBUG$CRST: Built apache configuration"
+fi
 
 mkdir -p /home/www-data/$GLPI_FOLDER_NAME
 cat rss/glpi/local_define.php | sed "s/_GLPI_FOLDER_NAME_/$GLPI_FOLDER_NAME/" > $GLPI_FOLDER_PATH/config/local_define.php
 # setting http_only cookies
-sudo find /etc -name "php.ini" -exec sed -i 's/session.cookie_httponly.*/session.cookie_httponly = 1/g' {} \+
+find /etc -name "php.ini" -exec sed -i 's/session.cookie_httponly.*/session.cookie_httponly = 1/g' {} \+
 
 # Enable live version config
 a2ensite 001-glpi.conf
